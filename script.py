@@ -19,6 +19,12 @@ def createConnection() -> Connection :
     except mariadb.Error as e:
         print(f"Error connecting to the database: {e}\n")
 
+def removeQuotationMarks(list:List[str]) -> [str]:
+    cleaned_data = []
+    for s in list:
+        cleaned_data.append(s.replace("'", ""))
+    return cleaned_data
+
 def getTableMetadata() -> List[Tuple[str, List[str]]]:
     data_sources = ["type_data.csv", "toscast_data.csv"]
 
@@ -29,7 +35,7 @@ def getTableMetadata() -> List[Tuple[str, List[str]]]:
             reader = csv.reader(file)
 
             result.append(
-                (source.replace(".csv", ""), next(reader))
+                (source.replace(".csv", ""), removeQuotationMarks(next(reader)))
             )
     return result
 
@@ -37,3 +43,5 @@ if __name__ == '__main__':
     metas = getTableMetadata()
     print(metas)
     conn = createConnection()
+
+
