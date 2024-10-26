@@ -102,5 +102,7 @@ if __name__ == '__main__':
         gen_column_name_sql(result_table_cols, results_col_type)
     )
 
+    execute_plain_sql_no_data(conn, sql)
+
     print(f"{sql}\n")
 
