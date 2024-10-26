@@ -45,20 +45,42 @@ def get_table_metadata() -> List[Tuple[str, List[str]]]:
 def gen_column_name_sql(col_names: List[str], data_types: List[str]) -> str:
     if len(col_names) != len(data_types):
         raise ValueError("The number of columns and data types must match!")
-    return ", ".join(f"(col) (dtype)" for col, dtype in zip(col_names, data_types))
+    return ", ".join(f"{col} {dtype}" for col, dtype in zip(col_names, data_types))
 
-type_col_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(1)", "INT", "INT", "INT", "INT", "INT" "DECIMAL", "VARCHAR(100)", "VARCHAR"]
-toscast_types: List[str]
+type_col_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(1)", "INT", "INT", "INT", "INT", "INT", "DECIMAL", "VARCHAR(100)", "VARCHAR(10)"]
+toscast_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(10)", "INT", "DECIMAL", "INT", "DECIMAL", "DECIMAL", "INT", "DECIMAL", "DECIMAL"]
+
+def genSQLCreateTable(table: str, columns: str) -> str:
+    return f"CREATE TABLE {table} (id INT AUTO_INCREMENT, {columns}, PRIMARY KEY(id), UNIQUE KEY (id));"
 
 if __name__ == '__main__':
     metas = get_table_metadata()
     print(metas)
     conn = create_connection()
 
+    result_table_cols: list[str]
+
     for table_name, column_names in metas:
         if table_name == "type_data":
 
             column_names.pop()
-            create_table_sql = f"CREATE TABLE {table_name} ({gen_column_name_sql(column_names, typedata_col_types)})"
+            sql = genSQLCreateTable(
+                table_name,
+                gen_column_name_sql(column_names, type_col_types)
+            )
 
-            print(f"{create_table_sql}\n")
+            result_table_cols = column_names
+            print(f"{sql}\n")
+
+        elif table_name == "toscast_data":
+            sql = genSQLCreateTable(
+                table_name,
+                gen_column_name_sql(column_names, toscast_types)
+            )
+            print(f"{sql}\n")
+
+            result_table_cols = result_table_cols + column_names[2:]
+
+    print(f"{result_table_cols}\n")
+
+    result_table = "result"
