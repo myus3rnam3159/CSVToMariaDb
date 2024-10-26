@@ -50,8 +50,15 @@ def gen_column_name_sql(col_names: List[str], data_types: List[str]) -> str:
 type_col_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(1)", "INT", "INT", "INT", "INT", "INT", "DECIMAL", "VARCHAR(100)", "VARCHAR(10)"]
 toscast_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(10)", "INT", "DECIMAL", "INT", "DECIMAL", "DECIMAL", "INT", "DECIMAL", "DECIMAL"]
 
-def genSQLCreateTable(table: str, columns: str) -> str:
+def gen_sql_create_table(table: str, columns: str) -> str:
     return f"CREATE TABLE {table} (id INT AUTO_INCREMENT, {columns}, PRIMARY KEY(id), UNIQUE KEY (id));"
+
+def execute_plain_sql_no_data(conn: Connection, sql: str):
+    try:
+        conn.cursor().execute(sql)
+    except Exception as e:
+        print(f"Error occured while execute SQL query: {e}")
+
 
 if __name__ == '__main__':
     metas = get_table_metadata()
@@ -64,7 +71,7 @@ if __name__ == '__main__':
         if table_name == "type_data":
 
             column_names.pop()
-            sql = genSQLCreateTable(
+            sql = gen_sql_create_table(
                 table_name,
                 gen_column_name_sql(column_names, type_col_types)
             )
@@ -72,15 +79,28 @@ if __name__ == '__main__':
             result_table_cols = column_names
             print(f"{sql}\n")
 
+            execute_plain_sql_no_data(conn, sql)
+
         elif table_name == "toscast_data":
-            sql = genSQLCreateTable(
+            sql = gen_sql_create_table(
                 table_name,
                 gen_column_name_sql(column_names, toscast_types)
             )
             print(f"{sql}\n")
+            execute_plain_sql_no_data(conn, sql)
 
             result_table_cols = result_table_cols + column_names[2:]
 
     print(f"{result_table_cols}\n")
-
     result_table = "result"
+
+    results_col_type = type_col_types + toscast_types[2:]
+    print(f"result table column types {results_col_type}\n")
+
+    sql = gen_sql_create_table(
+        result_table,
+        gen_column_name_sql(result_table_cols, results_col_type)
+    )
+
+    print(f"{sql}\n")
+
