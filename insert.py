@@ -85,5 +85,6 @@ if __name__ == "__main__":
 
                 try:
                     conn.cursor().execute(statement)
+                    conn.commit()
                 except Exception as e:
                     print(f"Error while inserting new data row to type_data table: {e}")
