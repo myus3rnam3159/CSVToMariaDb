@@ -47,7 +47,7 @@ def gen_column_name_sql(col_names: List[str], data_types: List[str]) -> str:
         raise ValueError("The number of columns and data types must match!")
     return ", ".join(f"{col} {dtype}" for col, dtype in zip(col_names, data_types))
 
-type_col_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(1)", "INT", "INT", "INT", "INT", "INT", "DECIMAL", "VARCHAR(100)", "VARCHAR(10)"]
+type_col_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(1)", "INT", "INT", "INT", "INT", "INT", "DECIMAL", "INT", "VARCHAR(10)"]
 toscast_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(10)", "INT", "DECIMAL", "INT", "DECIMAL", "DECIMAL", "INT", "DECIMAL", "DECIMAL"]
 
 def gen_sql_create_table(table: str, columns: str) -> str:
