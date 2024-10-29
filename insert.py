@@ -1,8 +1,8 @@
-from typing import List, Tuple
+from typing import List
 import csv
 import mariadb
 from mariadb import Connection
-from datetime import  datetime
+import re
 
 type_col_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(1)", "INT", "INT", "INT", "INT", "INT", "DECIMAL", "INT", "VARCHAR(10)"]
 toscast_types: List[str] = ["DATETIME", "VARCHAR(10)", "VARCHAR(10)", "INT", "DECIMAL", "INT", "DECIMAL", "DECIMAL", "INT", "DECIMAL", "DECIMAL"]
@@ -36,14 +36,17 @@ def format_values_sql(vals: List[str], types: List[str]) -> str:
 
         if types[index] in ["INT", "DECIMAL"]:
             temp: str = v.replace("'", "")
-            if v != '':
+            if v != '' and re.match(r"^-?\d+(\.\d+)?$", temp) is not None:
                 values.append(temp)
             else:
                 values.append('NULL'.replace("'", ""))
         elif types[index] == "DATETIME":
             values.append(f"'{v}'")
         else:
-            values.append(v)
+            if v != '':
+                values.append(v)
+            else:
+                values.append('NULL'.replace("'", ""))
 
     return sql.join(values)
 
@@ -60,14 +63,16 @@ def gen_insert_sql(table: str, cols: List[str], data: List[str]) -> str:
 
         data.pop()
         value_list = format_values_sql(data, type_col_types)
-
+    elif table == "toscast_data":
+        column_list = ", ".join(cols)
+        value_list = format_values_sql(data, toscast_types)
 
     sql = f"INSERT INTO {table} ({column_list}) VALUES ({value_list});"
     print(f"Insert sql statement: {sql}\n")
     return sql
 
 
-data_sources = ["type_data.csv"]
+data_sources = ["toscast_data.csv"]
 
 if __name__ == "__main__":
 
